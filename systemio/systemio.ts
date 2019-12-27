@@ -1,4 +1,5 @@
-import { BinaryLike } from "crypto";
+import { existsSync, mkdirSync, statSync, rmdirSync, readdirSync } from 'fs';
+import { resolve } from 'path';
 
 
 export class systemio {
@@ -40,13 +41,6 @@ export class file {
 
     public static move(sourcePath: string, destPath: string): void {
 
-    }
-
-    /*
-     * TODO: figure out if this is possible
-    */
-    public static readAllBytes(path: string):BinaryLike[] {
-        return null;
     }
 
     public static readAllLines(path: string): string[] {
@@ -101,50 +95,86 @@ export class fileInfo {
 }
 
 export class directory {
-    public static createDirectory(path: string):directoryInfo {
-        return null;
+    public static createDirectory(path: string): directoryInfo {
+        if (!existsSync(path)) {
+            mkdirSync(path);
+        }
+
+        return new directoryInfo(path);
     }
 
     public static delete(path: string): void {
-
+        if (existsSync(path)) {
+            rmdirSync(path);
+        }
     }
 
-    public static exists(path: string): void {
-
+    public static exists(path: string): boolean {
+        return existsSync(path);
     }
 
     public static getCreationTime(path: string): Date {
-        return null;
+
+        var stat = statSync(path);
+
+        return stat.birthtime;
     }
 
     public static getCreationTimeUtc(path: string): Date {
-        return null;
+        var stat = statSync(path);
+        var localtime: Date = stat.birthtime;
+        var utc = new Date(
+            localtime.getUTCFullYear(),
+            localtime.getUTCMonth(),
+            localtime.getUTCDate(),
+            localtime.getUTCHours(),
+            localtime.getUTCMinutes(),
+            localtime.getUTCSeconds(),
+            localtime.getUTCMilliseconds()
+        );
+
+        return utc;
     }
 
     public static getCurrentDirectory(): string {
-        return null;
+        return __dirname;
     }
 
     public static getDirectories(path: string): string[] {
-        return null;
+        var dirPaths: string[] = [];
+        readdirSync(path, { withFileTypes: true }).forEach(file => {
+            if (file.isDirectory()) {
+                dirPaths.push(resolve(resolve(__dirname, path), file.name));
+            }
+        });
+        return dirPaths;
     }
 
     public static getDirectoryRoot(path: string): string {
-        return null;
+        return resolve(__dirname, path).split("\\")[0] + "\\";
     }
 
     public static getFiles(path: string): string[] {
-        return null;
+        var filePaths: string[] = [];
+        readdirSync(path, { withFileTypes: true }).forEach(file => {
+            if (file.isFile()) {
+                filePaths.push(resolve(resolve(__dirname, path), file.name));
+            }
+        });
+        return filePaths;
     }
 
-    public static getParent(path: string):directoryInfo {
-        return null;
+    public static getParent(path: string): directoryInfo {
+        var absPath = resolve(__dirname, path);
+        return new directoryInfo(absPath.substring(0, absPath.lastIndexOf("\\") + 1));
     }
 }
 
 export class directoryInfo {
 
     private path: string;
+    private parentpath: string;
+    private rootpath: string;
 
     public exists: boolean;
     public fullName: string;
@@ -153,7 +183,15 @@ export class directoryInfo {
     public root: directoryInfo;
 
     constructor(path: string) {
-        this.path = path;
+        this.path = resolve(__dirname, path);
+        this.parentpath = this.path.substring(0, this.path.lastIndexOf("\\") + 1);
+        this.rootpath = this.path.split("\\")[0] + "\\";
+
+        this.exists = existsSync(path);
+        this.fullName = this.path;
+        this.name = this.path.substring(this.path.lastIndexOf("\\")+1, this.path.length);
+        this.parent = (this.parentpath != this.path) ? new directoryInfo(this.path.substring(0, this.path.lastIndexOf("\\")+1)) : null;
+        this.root = (this.parentpath != this.path) ? new directoryInfo(this.rootpath) : this;
     }
 
     public create():void {

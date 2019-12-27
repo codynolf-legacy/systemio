@@ -1,17 +1,32 @@
 {
   "name": "systemio",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "systemio",
   "main": "app.js",
-  "author": {
-    "name": ""
-  },
+  "author": "codynolf",
   "scripts": {
     "build": "tsc --build",
     "clean": "tsc --build --clean"
   },
   "devDependencies": {
-    "@types/node": "^8.0.14",
-    "typescript": "^3.2.2"
-  }
+    "@types/node": "^13.1.0",
+    "node": "^13.5.0",
+    "typescript": "^3.7.4"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nolf21/systemio.git"
+  },
+  "keywords": [
+    "system.io",
+    "file",
+    "system",
+    ".net"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nolf21/systemio/issues"
+  },
+  "homepage": "https://github.com/nolf21/systemio#readme"
 }

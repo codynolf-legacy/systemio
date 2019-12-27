@@ -6,3 +6,7 @@
 /systemio/package-lock.json
 /.vs/systemio/v16
 /systemio/systemio.njsproj.user
+/.vs/systemio/config
+/systemio/bin
+/systemio/obj/Debug
+/systemio/test
